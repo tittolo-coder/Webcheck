@@ -75,6 +75,7 @@ document.getElementById('add-site-btn').onclick = () => {
             name,
             tasks: [
                 {name: "Backup Database", completed: false},
+		{name: "Backup Web", completed: false},
                 {name: "Update Core/Plugin", completed: false},
                 {name: "Check Sicurezza", completed: false},
                 {name: "Test Velocità", completed: false}
