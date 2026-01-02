@@ -2,10 +2,9 @@ const sitesContainer = document.getElementById('sites-container');
 const monthDisplay = document.getElementById('current-month');
 let state = { lastUpdate: new Date().getMonth(), sites: [] };
 
-// Recuperiamo il client inizializzato nell'index
+// Usiamo il client inizializzato nell'index
 const db = window.supabaseClient;
 
-// 1. CARICA DATI DAL CLOUD
 async function loadData() {
     try {
         const { data, error } = await db
@@ -19,29 +18,23 @@ async function loadData() {
             checkMonthlyReset();
             render();
         } else {
-            // Se non esiste il record ID 1, lo creiamo
             await db.from('webcheck').insert([{ id: 1, data: state }]);
             render();
         }
     } catch (err) {
-        console.error("Errore durante il caricamento:", err);
+        console.error("Errore caricamento:", err);
     }
 }
 
-// 2. SALVA DATI NEL CLOUD
 async function saveToCloud() {
     try {
-        await db
-            .from('webcheck')
-            .update({ data: state })
-            .eq('id', 1);
+        await db.from('webcheck').update({ data: state }).eq('id', 1);
         render();
     } catch (err) {
-        console.error("Errore durante il salvataggio:", err);
+        console.error("Errore salvataggio:", err);
     }
 }
 
-// Controllo reset mensile
 const checkMonthlyReset = () => {
     const currentMonth = new Date().getMonth();
     if (state.lastUpdate !== currentMonth) {
@@ -80,8 +73,8 @@ const render = () => {
             </div>
             <textarea 
                 oninput="updateNotes(${sIdx}, this.value)"
-                placeholder="Note libere per questo sito..."
-                class="w-full p-2 text-sm bg-blue-50 rounded-lg outline-none border-none focus:ring-2 focus:ring-blue-200 transition-all"
+                placeholder="Note libere..."
+                class="w-full p-2 text-sm bg-blue-50 rounded-lg outline-none border-none focus:ring-2 focus:ring-blue-200"
                 rows="2">${site.notes || ''}</textarea>
         </div>
     `).join('');
@@ -94,7 +87,6 @@ const getStatusColor = (site) => {
     return 'border-yellow-500';
 };
 
-// Funzioni Globali
 window.toggleTask = (sIdx, tIdx) => {
     state.sites[sIdx].tasks[tIdx].completed = !state.sites[sIdx].tasks[tIdx].completed;
     saveToCloud();
@@ -109,7 +101,7 @@ window.updateNotes = (sIdx, value) => {
 };
 
 window.removeSite = (idx) => {
-    if(confirm('Sei sicuro di voler eliminare questo sito?')) {
+    if(confirm('Eliminare il sito?')) {
         state.sites.splice(idx, 1);
         saveToCloud();
     }
@@ -133,15 +125,10 @@ document.getElementById('add-site-btn').onclick = () => {
     }
 };
 
-// Avvio coordinato con il client Supabase
-if (db) {
-    loadData();
-} else {
-    console.error("Il client Supabase non è stato inizializzato correttamente.");
-}
+// Caricamento iniziale
+if (db) { loadData(); }
 
-
-// Funzione per il tasto Aggiorna
+// Logica Tasto Refresh
 document.getElementById('refresh-btn').onclick = async () => {
     const btn = document.getElementById('refresh-btn');
     btn.innerText = "⏳";
@@ -150,14 +137,10 @@ document.getElementById('refresh-btn').onclick = async () => {
         if ('serviceWorker' in navigator) {
             const registrations = await navigator.serviceWorker.getRegistrations();
             for (let registration of registrations) {
-                // Questo ora non fallirà più anche se il file sw.js ha problemi
-                await registration.update().catch(e => console.log("Update non riuscito, procedo comunque."));
+                // Aggiorna il worker se possibile, ma non bloccare l'app se fallisce
+                await registration.update().catch(() => {});
             }
         }
-    } catch (err) {
-        console.log("Errore durante l'aggiornamento del worker:", err);
-    }
-
-    // Ricarica comunque la pagina per l'utente
+    } catch (err) {}
     window.location.reload(true);
 };
