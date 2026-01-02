@@ -27,31 +27,30 @@
     +
 </button>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<button id="refresh-btn" class="fixed bottom-28 right-6 bg-white text-blue-600 w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl hover:bg-gray-100 transition-all active:scale-90 z-50 border border-gray-200">
+    <span>🔄</span>
+</button>
 
-    <script>
-        // 2. Inizializziamo Supabase usando un nome univoco per evitare errori
-        const SUPABASE_URL = 'https://ltrzpfwlootgaowlvons.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cnpwZndsb290Z2Fvd2x2b25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNTUzNzAsImV4cCI6MjA4MjkzMTM3MH0.BdtvaGc9LQeeaWYGkIvN1isBCNVbUrYJf_v03Gr1XtU';
-        
-        // Creiamo il client e lo rendiamo disponibile globalmente come supabaseClient
-        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    </script>
+<button id="add-site-btn" class="fixed bottom-8 right-6 bg-blue-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-3xl hover:bg-blue-700 transition-all active:scale-90 z-50">
+    +
+</button>
 
-    <script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://ltrzpfwlootgaowlvons.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cnpwZndsb290Z2Fvd2x2b25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNTUzNzAsImV4cCI6MjA4MjkzMTM3MH0.BdtvaGc9LQeeaWYGkIvN1isBCNVbUrYJf_v03Gr1XtU';
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
 
-   <script>
+<script src="app.js"></script>
+
+<script>
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(reg => {
-            reg.onupdatefound = () => {
-                const installingWorker = reg.installing;
-                installingWorker.onstatechange = () => {
-                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // Nuovo contenuto disponibile, ricarica la pagina
-                        window.location.reload();
-                    }
-                };
-            };
+        // Usiamo './sw.js' per indicare la cartella corrente
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('SW registrato con successo');
+        }).catch(err => {
+            console.error('Errore registrazione SW:', err);
         });
     }
 </script>

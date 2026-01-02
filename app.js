@@ -143,18 +143,21 @@ if (db) {
 
 // Funzione per il tasto Aggiorna
 document.getElementById('refresh-btn').onclick = async () => {
-    // 1. Mostra un feedback visivo (opzionale)
     const btn = document.getElementById('refresh-btn');
     btn.innerText = "⏳";
     
-    // 2. Se c'è un Service Worker, proviamo ad aggiornarlo
-    if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (let registration of registrations) {
-            await registration.update();
+    try {
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+                // Questo ora non fallirà più anche se il file sw.js ha problemi
+                await registration.update().catch(e => console.log("Update non riuscito, procedo comunque."));
+            }
         }
+    } catch (err) {
+        console.log("Errore durante l'aggiornamento del worker:", err);
     }
 
-    // 3. Ricarica la pagina forzando il recupero dal server
+    // Ricarica comunque la pagina per l'utente
     window.location.reload(true);
 };
